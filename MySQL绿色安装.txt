@@ -1,0 +1,17 @@
+1. 新建系统变量 MYSQL_HOME ，并配置其值为 “E:\mysql-8.0.20-winx64”
+　　
+2. 编辑系统变量 Path，将 ;%MYSQL_HOME%\bin 添加到Path变量值的后面（Windows 7）,直接新增该变量值
+
+3.安装 mysql 服务,生成初始密码，是root@localhost后的字符，我们需要记下来，后面用到
+mysqld --defaults-file="D:\Program Files\mysql-8.0.21\my.ini" --initialize --console
+4.初始化：
+mysqld --install MySQL80 --defaults-file="D:\Program Files\mysql-8.0.21\my.ini"
+5. 开启服务
+net start MySQL80
+
+6.//登陆,修改密码
+mysql -u root -p
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY  'root';
+
+
+7.重启mysql服务

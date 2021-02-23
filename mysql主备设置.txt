@@ -1,0 +1,39 @@
+1、主服务器和备服务器都安装好mysql，最好是同一版本。
+主用服务器IP为1.1.1.1，备用服务器IP为2.2.2.2。并且分别都创建同一个数据库。
+CREATE SCHEMA `test`
+注意主和备都要事先创建好数据库
+2、在主服务器上为备用服务器设置同步帐号
+grant replication slave,file on *.* to 'replicate'@'2.2.2.2' identified by '111111';
+这里面注意一定要用slave和file权限，之前我就是没设置file权限导致有错误发生
+3、在主用服务器上设置二进制日志
+在配置文件上修改
+log-bin=mysql-bin
+binlog-do-db = test
+binlog-ignore-db = mysql
+其中test是你要同步的数据库
+修改好，重启服务
+
+4、查看主服务器状态
+show master status\G;
+记住两个File和Position这两个参数
+
+5、在从服务器上设置复制的二进制数据库
+server-id = 2
+log-bin=mysql-bin
+replicate-do-db = test
+注意要把server-id改了，默认是1的，要改成跟主用的不一样
+修改好，重启服务
+
+6、在备用服务器上指定同步位置
+mysql>stop slave;       //先停步slave服务线程
+mysql>change master to
+>master_host='1.1.1.1',master_user='replicate',master_password='111111',
+> master_log_file=' mysql-bin.000016 ',master_log_pos=107;
+注：master_log_file, master_log_pos由主服务器（Master）查出的状态值中确定。也就是刚刚叫注意的。master_log_file对应File, master_log_pos对应Position
+
+mysql>start slave; //启动slave服务线程
+mysql> show slave status\G; //查看同步情况
+
+以下两项如果都是Yes就说明同步成功了
+Slave_IO_Running: Yes
+Slave_SQL_Running: Yes

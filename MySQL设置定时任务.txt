@@ -1,0 +1,13 @@
+MySQL设置定时任务
+
+在C:\ProgramData\MySQL\MySQL Server 5.7 下找到my.ini修改 在[mysqld] 下添加：event_scheduler=1
+
+创建event
+
+DROP EVENT IF EXISTS `AutoClearDataEvent`;
+CREATE DEFINER=`root`@`localhost` EVENT `AutoClearDataEvent` ON SCHEDULE EVERY 1 DAY STARTS '2019-10-16 08:56:42' ON COMPLETION NOT PRESERVE ENABLE DO DELETE from t_receivedatainfo where TIMESTAMPDIFF(DAY,AddTime,NOW())> 30
+
+ 
+#说明：
+ ON SCHEDULE EVERY 1 day 指定循环间隔为每天执行
+ '2019-10-16 08:56:42' 指定运行时间为23:59:00
